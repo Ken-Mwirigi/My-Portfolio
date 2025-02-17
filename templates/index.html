@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Welcome-Kennedy Mwirigi's Portfolio{% endblock %}
+
+{% block content %}
+<section id="hero" class="hero section dark-background">
+    <img src="{% static 'assets/img/hero-bg.jpg' %}" alt="">
+  <div class="container" data-aos="zoom-out" data-aos-delay="100">
+    <h2 class="mb-3">Hello, I’m Kennedy Mwirigi<br> A Software Engineer</h2>
+    <p class="mb-4">I'm <span class="typed" data-typed-items=" not just a programmer, an architect of digital experiences"></span></p>
+    <div class="d-flex gap-3 mt-5" style="margin-top: 100px;">
+  <a href="{% static 'assets/Kennedy-Kamau-Resume.pdf' %}" class="blue-btn" download>Check Out My Resume</a>
+  <a href="{% url 'ken:portfolio' %}" class="btn-more">Jump to Projects</a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

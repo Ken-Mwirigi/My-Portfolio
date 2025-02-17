@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Kennedy Mwirigi-Services{% endblock %}
+{% block content %}
+
+
+  <main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title" data-aos="fade">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1>Services I Offer </h1>
+                <hr>
+              <p class="mb-0">Bringing Ideas to Life with Cutting-Edge Solutions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+        {% comment %}
+
+
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li class="current">Services</li>
+          </ol>
+        </div>
+      </nav>
+      {% endcomment %}
+    </div><!-- End Page Title -->
+
+    <!-- Services Section -->
+    <section id="services" class="services section">
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon">
+
+                  <i class="bi bi-code-slash"></i>
+
+
+              </div>
+              <a href="{% url 'ken:contact' %}" class="stretched-link">
+                <h3>Custom Software Development</h3>
+              </a>
+              <p> We craft bespoke software solutions tailored to your unique business
+needs, exceeding expectations with innovative technology.</p>
+                <br>
+                <p><strong>Click To Enquire >></strong></p>
+
+            </div>
+          </div><!-- End Service Item -->
+
+
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item  position-relative">
+              <div class="icon">
+                       <i class="bi bi-terminal"></i>
+              </div>
+              <a href="{% url 'ken:contact' %}" class="stretched-link">
+                <h3>Web Development</h3>
+              </a>
+              <p>I weave digital experiences that captivate your audience, building high
+     performing web applications that are both beautiful and functional.</p>
+                <br>
+                <p><strong>Click To Enquire >></strong></p>
+            </div>
+          </div><!-- End Service Item -->
+
+             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-tools"></i>
+              </div>
+              <a href="{% url 'ken:contact' %}" class="stretched-link">
+                <h3>IT Support</h3>
+              </a>
+              <p>I  provide comprehensive IT support that keeps your business running
+               smoothly, ensuring your technology is always reliable and secure</p>
+              <a href="{% url 'ken:contact' %}" class="stretched-link"></a>
+                <br>
+                <p><strong>Click To Enquire >></strong></p>
+            </div>
+          </div><!-- End Service Item -->
+
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+
+              <div class="icon">
+               <i class="bi bi-person-lines-fill"></i>
+              </div>
+              <a href="{% url 'ken:contact' %}" class="stretched-link">
+                <h3>IT Consulting</h3>
+              </a>
+              <p>I offer expert guidance and strategic advice to optimize your IT
+infrastructure, improve efficiency, and achieve your business goals</p>
+                <br>
+                <p><strong>Click To Enquire >></strong></p>
+            </div>
+          </div><!-- End Service Item -->
+          {% comment %}
+
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-bounding-box-circles"></i>
+              </div>
+              <a href="service-details.html" class="stretched-link">
+                <h3>Asperiores Commodit</h3>
+              </a>
+              <p>Non et temporibus minus omnis sed dolor esse consequatur. Cupiditate sed error ea fuga sit provident adipisci neque.</p>
+              <a href="service-details.html" class="stretched-link"></a>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-calendar4-week"></i>
+              </div>
+              <a href="service-details.html" class="stretched-link">
+                <h3>Velit Doloremque</h3>
+              </a>
+              <p>Cumque et suscipit saepe. Est maiores autem enim facilis ut aut ipsam corporis aut. Sed animi at autem alias eius labore.</p>
+              <a href="service-details.html" class="stretched-link"></a>
+            </div>
+          </div><!-- End Service Item -->
+{% endcomment %}
+
+
+        </div>
+
+      </div>
+
+    </section><!-- /Services Section -->
+
+  </main>
+
+{% endblock %}
