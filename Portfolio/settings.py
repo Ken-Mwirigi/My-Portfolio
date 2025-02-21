@@ -30,12 +30,14 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'kamaukennedy362@gmail.com'
-EMAIL_HOST_PASSWORD = '<PASSWORD>'
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_USER='kenmwirigi7933@gmail.com'
+EMAIL_HOST_PASSWORD='wxpo evjg ysby jayb'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
 ALLOWED_HOSTS = []
 
 
@@ -123,16 +125,17 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
+'''
 ANYMAIL = {
-    "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY"),
-    "MAILGUN_SENDER_DOMAIN": os.environ.get("MAILGUN_SENDER_DOMAIN"),
+     "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY"),
+     "MAILGUN_SENDER_DOMAIN": os.getenv("MAILGUN_SENDER_DOMAIN"),
+
 }
 FROM_EMAIL = "kamaukennedy362@gmail.com"
-EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 DEFAULT_FROM_EMAIL = "kamaukennedy362@gmail.com"
-SERVER_EMAIL =  "kamaukennedy362@gmail.com"
-
+SERVER_EMAIL = "kamaukennedy362@gmail.com"
+'''
 
 
 
