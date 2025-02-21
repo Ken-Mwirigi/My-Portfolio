@@ -36,7 +36,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
+ADMIN_EMAIL = config('ADMIN_EMAIL')
 
 ALLOWED_HOSTS = []
 
@@ -125,17 +125,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-'''
-ANYMAIL = {
-     "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY"),
-     "MAILGUN_SENDER_DOMAIN": os.getenv("MAILGUN_SENDER_DOMAIN"),
 
-}
-FROM_EMAIL = "kamaukennedy362@gmail.com"
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "kamaukennedy362@gmail.com"
-SERVER_EMAIL = "kamaukennedy362@gmail.com"
-'''
 
 
 
