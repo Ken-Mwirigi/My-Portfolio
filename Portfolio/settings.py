@@ -38,7 +38,7 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ADMIN_EMAIL = config('ADMIN_EMAIL')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['kenmwirigi-builds.onrender.com', 'localhost','127.0.0.1']
 
 
 # Application definition
