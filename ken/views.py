@@ -64,14 +64,14 @@ def contact(request):
         # Send email to admin
         try:
             admin_subject = f"New Contact Message from {name}"
-            admin_text = render_to_string("emails/admin_contact.txt", context_data)
-            admin_html = render_to_string("emails/admin_contact.html", context_data)
+            admin_text = render_to_string("admin_contact.txt", context_data)
+            admin_html = render_to_string("admin_contact.html", context_data)
 
             admin_email = EmailMultiAlternatives(
                 subject=admin_subject,
                 body=admin_text,
                 from_email=settings.EMAIL_HOST_USER,
-                to=[os.getenv("ADMIN_EMAIL") or "admin@example.com"],
+                to=[os.getenv("ADMIN_EMAIL")],
             )
             admin_email.attach_alternative(admin_html, "text/html")
             admin_email.send()
@@ -82,8 +82,8 @@ def contact(request):
         # Send confirmation to user
         try:
             user_subject = "Thank you for contacting us!"
-            user_text = render_to_string("emails/user_confirmation.txt", context_data)
-            user_html = render_to_string("emails/user_confirmation.html", context_data)
+            user_text = render_to_string("user_confirmation.txt", context_data)
+            user_html = render_to_string("user_confirmation.html", context_data)
 
             user_email = EmailMultiAlternatives(
                 subject=user_subject,
