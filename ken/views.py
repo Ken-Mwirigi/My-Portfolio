@@ -25,65 +25,77 @@ def resume(request):
 def portfolio_details(request):
     return render(request, 'portfolio-details.html')
 
+from django.shortcuts import render, redirect
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from .models import ContactMessage
+import os
+
 def contact(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        subject = request.POST.get('subject')
-        message = request.POST.get('message')
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        subject = request.POST.get("subject")
+        message = request.POST.get("message")
 
         if not name or not email or not subject or not message:
-            return HttpResponse("All fields are required.", status=400)
+            return render(request, "contact.html", {
+                "error": "All fields are required.",
+                "form_data": request.POST,
+            })
 
-        # Save the contact message in the database
-        mycontact = ContactMessage(
+        # Save contact message
+        contact_message = ContactMessage.objects.create(
             name=name,
             email=email,
             subject=subject,
-            message=message
+            message=message,
         )
-        mycontact.save()
 
-        merge_data = {
-            'name': name,
-            'email': email,
-            'subject': subject,
-            'message': message
+        # Prepare merge data
+        context_data = {
+            "name": name,
+            "email": email,
+            "subject": subject,
+            "message": message,
         }
 
+        # Send email to admin
         try:
-            # Send email to site admin
-            admin_subject = f"New Contact Form Submission from {name}"
-            admin_text_body = render_to_string("admin_contact_notification.txt", merge_data)
-            admin_html_body = render_to_string("admin_contact_notification.html", merge_data)
+            admin_subject = f"New Contact Message from {name}"
+            admin_text = render_to_string("emails/admin_contact.txt", context_data)
+            admin_html = render_to_string("emails/admin_contact.html", context_data)
 
-            admin_msg = EmailMultiAlternatives(
+            admin_email = EmailMultiAlternatives(
                 subject=admin_subject,
+                body=admin_text,
                 from_email=settings.EMAIL_HOST_USER,
-                to=[os.getenv('ADMIN_EMAIL')], # Replace with actual admin email(s)
-                body=admin_text_body
+                to=[os.getenv("ADMIN_EMAIL") or "admin@example.com"],
             )
-            admin_msg.attach_alternative(admin_html_body, "text/html")
-            admin_msg.send()
+            admin_email.attach_alternative(admin_html, "text/html")
+            admin_email.send()
+        except Exception as e:
+            print("Error sending admin email:", e)
+            return redirect("/contact/?status=email_failed")
 
-            # Send confirmation email to the user
+        # Send confirmation to user
+        try:
             user_subject = "Thank you for contacting us!"
-            user_text_body = render_to_string("user_contact_confirmation.txt", merge_data)
-            user_html_body = render_to_string("user_contact_confirmation.html", merge_data)
+            user_text = render_to_string("emails/user_confirmation.txt", context_data)
+            user_html = render_to_string("emails/user_confirmation.html", context_data)
 
-            user_msg = EmailMultiAlternatives(
+            user_email = EmailMultiAlternatives(
                 subject=user_subject,
+                body=user_text,
                 from_email=settings.EMAIL_HOST_USER,
                 to=[email],
-                body=user_text_body
             )
-            user_msg.attach_alternative(user_html_body, "text/html")
-            user_msg.send()
-
+            user_email.attach_alternative(user_html, "text/html")
+            user_email.send()
         except Exception as e:
-            print(f"Email sending error: {e}")
-            return redirect('/contact/?status=email_failed')  # Redirect with error status
+            print("Error sending user confirmation email:", e)
 
-        return redirect('/contact/?status=success')  # Redirect with success status
+        return redirect("/contact/?status=success")
 
-    return render(request, 'contact.html')
+    return render(request, "contact.html")
