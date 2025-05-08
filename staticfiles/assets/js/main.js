@@ -187,6 +187,18 @@
       });
     });
 
+    // Override the template’s form handling
+  document.querySelector('.php-email-form').addEventListener('submit', function(e) {
+  // Optional: Show loading state
+  const submitBtn = this.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+
+  // Let Django handle submission naturally
+  // (Remove this if using AJAX)
+  // No e.preventDefault() → allows normal form POST
+    });
+
     isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
       filters.addEventListener('click', function() {
         isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');

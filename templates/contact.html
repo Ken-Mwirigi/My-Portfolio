@@ -38,7 +38,7 @@
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-          <form action="{% url 'ken:contact' %}" method="POST"  class="php-email-form" data-aos="fade-up" data-aos-delay="600">
+          <form action="{% url 'ken:contact' %}" method="POST"  class="php-email-form" data-aos="fade-up" data-aos-delay="600" id="contactForm">
               {% csrf_token %}
     <div class="row gy-4">
         <div class="col-md-6">

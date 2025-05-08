@@ -27,16 +27,17 @@ def portfolio_details(request):
 
 
 
+from django.http import JsonResponse
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.shortcuts import render, redirect
 import os
-from .models import ContactMessage  # Make sure to import your model
+from .models import ContactMessage
 
 def contact(request):
     if request.method == "POST":
-        # Get form data with proper fallbacks
+        # Get and clean form data
         name = request.POST.get("name", "").strip()
         email = request.POST.get("email", "").strip()
         subject = request.POST.get("subject", "").strip()
@@ -44,31 +45,32 @@ def contact(request):
 
         # Validate all fields
         if not all([name, email, subject, message]):
-            return render(request, "contact.html", {
-                "error": "All fields are required.",
-                "form_data": {
-                    "name": name,
-                    "email": email,
-                    "subject": subject,
-                    "message": message,
-                },
-            })
+            response_data = {
+                "status": "error",
+                "message": "All fields are required.",
+                "errors": {
+                    "name": "Name is required" if not name else "",
+                    "email": "Email is required" if not email else "",
+                    "subject": "Subject is required" if not subject else "",
+                    "message": "Message is required" if not message else "",
+                }
+            }
+            return JsonResponse(response_data) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else \
+                render(request, "contact.html", {"error": "All fields are required.", "form_data": request.POST})
 
-        # Validate email format (basic check)
+        # Validate email format
         if "@" not in email or "." not in email.split("@")[-1]:
-            return render(request, "contact.html", {
-                "error": "Please enter a valid email address.",
-                "form_data": {
-                    "name": name,
-                    "email": email,
-                    "subject": subject,
-                    "message": message,
-                },
-            })
+            response_data = {
+                "status": "error",
+                "message": "Please enter a valid email address.",
+                "errors": {"email": "Invalid email format"}
+            }
+            return JsonResponse(response_data) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else \
+                render(request, "contact.html", {"error": "Please enter a valid email address.", "form_data": request.POST})
 
         # Save contact message
         try:
-            contact_message = ContactMessage.objects.create(
+            ContactMessage.objects.create(
                 name=name,
                 email=email,
                 subject=subject,
@@ -76,17 +78,14 @@ def contact(request):
             )
         except Exception as e:
             print("Error saving contact message:", e)
-            return render(request, "contact.html", {
-                "error": "An error occurred while saving your message. Please try again.",
-                "form_data": {
-                    "name": name,
-                    "email": email,
-                    "subject": subject,
-                    "message": message,
-                },
-            })
+            response_data = {
+                "status": "error",
+                "message": "An error occurred while saving your message. Please try again."
+            }
+            return JsonResponse(response_data, status=500) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else \
+                render(request, "contact.html", {"error": "An error occurred while saving your message. Please try again.", "form_data": request.POST})
 
-        # Prepare context data for emails
+        # Prepare email context
         context_data = {
             "name": name,
             "email": email,
@@ -94,58 +93,64 @@ def contact(request):
             "message": message,
         }
 
-        # Get admin email from settings with a fallback
         admin_email = getattr(settings, "ADMIN_EMAIL", os.getenv("ADMIN_EMAIL"))
-        if not admin_email:
-            print("Admin email not configured")
-            return redirect("/contact/?status=email_failed")
+        email_failed = False
 
-        # Send email to admin
+        # Send admin notification
         try:
             admin_subject = f"New Contact Message from {name}"
             admin_text = render_to_string("admin_contact_notification.txt", context_data)
             admin_html = render_to_string("admin_contact_notification.html", context_data)
 
-            admin_email_message = EmailMultiAlternatives(
+            EmailMultiAlternatives(
                 subject=admin_subject,
                 body=admin_text,
-                from_email=settings.DEFAULT_FROM_EMAIL,  # Better to use DEFAULT_FROM_EMAIL
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[admin_email],
-                reply_to=[email],  # Add reply-to header
-            )
-            admin_email_message.attach_alternative(admin_html, "text/html")
-            admin_email_message.send()
+                reply_to=[email],
+            ).attach_alternative(admin_html, "text/html").send()
         except Exception as e:
             print("Error sending admin email:", e)
-            # Don't return here, still try to send user confirmation
+            email_failed = True
 
-        # Send confirmation to user
+        # Send user confirmation
         try:
             user_subject = "Thank you for contacting us!"
             user_text = render_to_string("user_contact_confirmation.txt", context_data)
             user_html = render_to_string("user_contact_confirmation.html", context_data)
 
-            user_email_message = EmailMultiAlternatives(
+            EmailMultiAlternatives(
                 subject=user_subject,
                 body=user_text,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[email],
-            )
-            user_email_message.attach_alternative(user_html, "text/html")
-            user_email_message.send()
+            ).attach_alternative(user_html, "text/html").send()
         except Exception as e:
             print("Error sending user confirmation email:", e)
-            return redirect("/contact/?status=email_failed")
+            email_failed = True
 
-        return redirect("/contact/?status=success")
+        if email_failed:
+            response_data = {
+                "status": "partial_success",
+                "message": "Message received but email confirmation failed."
+            }
+            return JsonResponse(response_data) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else \
+                redirect("/contact/?status=email_failed")
 
-    # Handle GET request
+        response_data = {
+            "status": "success",
+            "message": "Your message has been sent successfully!"
+        }
+        return JsonResponse(response_data) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else \
+            redirect("/contact/?status=success")
+
+    # GET request handling
     status = request.GET.get("status", "")
     context = {}
     
     if status == "success":
         context["success"] = "Your message has been sent successfully!"
     elif status == "email_failed":
-        context["error"] = "We received your message but couldn't send a confirmation email."
+        context["error"] = "We received your message but couldn't send an email. Please try again."
     
     return render(request, "contact.html", context)
