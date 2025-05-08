@@ -25,35 +25,68 @@ def resume(request):
 def portfolio_details(request):
     return render(request, 'portfolio-details.html')
 
-from django.shortcuts import render, redirect
+
+
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-from .models import ContactMessage
+from django.shortcuts import render, redirect
 import os
+from .models import ContactMessage  # Make sure to import your model
 
 def contact(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        subject = request.POST.get("subject")
-        message = request.POST.get("message")
+        # Get form data with proper fallbacks
+        name = request.POST.get("name", "").strip()
+        email = request.POST.get("email", "").strip()
+        subject = request.POST.get("subject", "").strip()
+        message = request.POST.get("message", "").strip()
 
-        if not name or not email or not subject or not message:
+        # Validate all fields
+        if not all([name, email, subject, message]):
             return render(request, "contact.html", {
                 "error": "All fields are required.",
-                "form_data": request.POST,
+                "form_data": {
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message,
+                },
+            })
+
+        # Validate email format (basic check)
+        if "@" not in email or "." not in email.split("@")[-1]:
+            return render(request, "contact.html", {
+                "error": "Please enter a valid email address.",
+                "form_data": {
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message,
+                },
             })
 
         # Save contact message
-        contact_message = ContactMessage.objects.create(
-            name=name,
-            email=email,
-            subject=subject,
-            message=message,
-        )
+        try:
+            contact_message = ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message,
+            )
+        except Exception as e:
+            print("Error saving contact message:", e)
+            return render(request, "contact.html", {
+                "error": "An error occurred while saving your message. Please try again.",
+                "form_data": {
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message,
+                },
+            })
 
-        # Prepare merge data
+        # Prepare context data for emails
         context_data = {
             "name": name,
             "email": email,
@@ -61,41 +94,58 @@ def contact(request):
             "message": message,
         }
 
+        # Get admin email from settings with a fallback
+        admin_email = getattr(settings, "ADMIN_EMAIL", os.getenv("ADMIN_EMAIL"))
+        if not admin_email:
+            print("Admin email not configured")
+            return redirect("/contact/?status=email_failed")
+
         # Send email to admin
         try:
             admin_subject = f"New Contact Message from {name}"
-            admin_text = render_to_string("admin_contact.txt", context_data)
-            admin_html = render_to_string("admin_contact.html", context_data)
+            admin_text = render_to_string("admin_contact_notification.txt", context_data)
+            admin_html = render_to_string("admin_contact_notification.html", context_data)
 
-            admin_email = EmailMultiAlternatives(
+            admin_email_message = EmailMultiAlternatives(
                 subject=admin_subject,
                 body=admin_text,
-                from_email=settings.EMAIL_HOST_USER,
-                to=[os.getenv("ADMIN_EMAIL")],
+                from_email=settings.DEFAULT_FROM_EMAIL,  # Better to use DEFAULT_FROM_EMAIL
+                to=[admin_email],
+                reply_to=[email],  # Add reply-to header
             )
-            admin_email.attach_alternative(admin_html, "text/html")
-            admin_email.send()
+            admin_email_message.attach_alternative(admin_html, "text/html")
+            admin_email_message.send()
         except Exception as e:
             print("Error sending admin email:", e)
-            return redirect("/contact/?status=email_failed")
+            # Don't return here, still try to send user confirmation
 
         # Send confirmation to user
         try:
             user_subject = "Thank you for contacting us!"
-            user_text = render_to_string("user_confirmation.txt", context_data)
-            user_html = render_to_string("user_confirmation.html", context_data)
+            user_text = render_to_string("user_contact_confirmation.txt", context_data)
+            user_html = render_to_string("user_contact_confirmation.html", context_data)
 
-            user_email = EmailMultiAlternatives(
+            user_email_message = EmailMultiAlternatives(
                 subject=user_subject,
                 body=user_text,
-                from_email=settings.EMAIL_HOST_USER,
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[email],
             )
-            user_email.attach_alternative(user_html, "text/html")
-            user_email.send()
+            user_email_message.attach_alternative(user_html, "text/html")
+            user_email_message.send()
         except Exception as e:
             print("Error sending user confirmation email:", e)
+            return redirect("/contact/?status=email_failed")
 
         return redirect("/contact/?status=success")
 
-    return render(request, "contact.html")
+    # Handle GET request
+    status = request.GET.get("status", "")
+    context = {}
+    
+    if status == "success":
+        context["success"] = "Your message has been sent successfully!"
+    elif status == "email_failed":
+        context["error"] = "We received your message but couldn't send a confirmation email."
+    
+    return render(request, "contact.html", context)
