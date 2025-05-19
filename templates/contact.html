@@ -129,6 +129,13 @@
       </div>
 
     </section><!-- /Contact Section -->
+    <script>
+      document.getElementById("contact-form").addEventListener("submit", function(event) {
+          event.preventDefault();
+          alert("Message sent successfully!");
+      });
+  </script>
+
 
   </main>
 {% endblock %}
