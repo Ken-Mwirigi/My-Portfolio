@@ -58,14 +58,50 @@
         </div>
 
         <div class="col-md-12 text-center">
-            <div class="loading" >Loading...</div>
-            <div class="error-message" ></div>
-            <div class="sent-message" >Your message has been sent. Thank you!</div>
-
-           <button type="submit">Send Message</button>
+          <div class="loading" style="display: none;">Loading...</div>
+          <div class="error-message" style="display: none;"></div>
+          <div class="sent-message" style="display: none;">Your message has been sent. Thank you!</div>
+          <button type="submit">Send Message</button>
         </div>
-    </div>
-</form><!-- End Contact Form -->
+      </form><!-- End Contact Form -->
+<script>
+  const form = document.getElementById('contact-form');
+  const loading = document.querySelector('.loading');
+  const errorMsg = document.querySelector('.error-message');
+  const sentMsg = document.querySelector('.sent-message');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Show loading
+    loading.style.display = 'block';
+    errorMsg.style.display = 'none';
+    sentMsg.style.display = 'none';
+
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+      loading.style.display = 'none';
+
+      if (data.status === 'success') {
+        sentMsg.style.display = 'block';
+      } else {
+        errorMsg.innerText = data.message || 'Something went wrong!';
+        errorMsg.style.display = 'block';
+      }
+    })
+    .catch(error => {
+      loading.style.display = 'none';
+      errorMsg.innerText = 'An error occurred. Please try again.';
+      errorMsg.style.display = 'block';
+    });
+  });
+</script>
 
           <div class="row gy-4">
 

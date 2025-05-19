@@ -119,10 +119,12 @@ def contact(request):
                 redirect("/contact/?status=email_failed")
 
         return JsonResponse({
-            "status": "success",
-            "message": "Your message has been sent successfully!",
-        }) if request.headers.get("X-Requested-With") == "XMLHttpRequest" else \
-            redirect("/contact/?status=success")
+               "status": "success",
+               "message": "Your message has been sent successfully!",
+               "show_popup": True
+          }) if request.headers.get("X-Requested-With") == "XMLHttpRequest" else \
+               redirect("/contact/?status=success")
+
 
     # GET Request
     status = request.GET.get("status", "")

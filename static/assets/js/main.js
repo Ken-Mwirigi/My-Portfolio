@@ -187,6 +187,22 @@
       });
     });
    
+    // AJAX handling (assuming you're using fetch)
+fetch('/contact/', {
+  method: 'POST',
+  headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  body: new URLSearchParams(new FormData(formElement))
+})
+.then(response => response.json())
+.then(data => {
+  if (data.status === "success") {
+      // Handle success (show your own message)
+      alert("Message sent!");  // Or update UI your way
+  }
+});
     isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
       filters.addEventListener('click', function() {
         isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
